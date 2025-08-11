@@ -13,6 +13,5 @@ import { Request } from 'express';
     if (!allowedMimeTypes.includes(file.mimetype)) {
       return cb(new Error('Only PDF, Docx, PNG, or JPEG files are allowed'), false);
     }
-
     cb(null, true);
   }
