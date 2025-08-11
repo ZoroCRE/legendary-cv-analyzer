@@ -16,7 +16,6 @@
       "express-rate-limit": "^6.7.0",
       "winston": "^3.8.2",
       "@google-cloud/vision": "^3.0.0",
-      "@supabase/supabase-js": "^2.45.4",
       "glob": "^10.0.0"
     },
     "devDependencies": {
