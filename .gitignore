@@ -1,0 +1,19 @@
+# Ignore node_modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Ignore environment files
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignore build outputs
+backend/uploads/
+backend/logs/
+frontend/dist/
+
+# Ignore other temporary files
+*.log
+.DS_Store
