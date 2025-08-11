@@ -16,7 +16,8 @@
       "express-rate-limit": "^6.7.0",
       "winston": "^3.8.2",
       "@google-cloud/vision": "^3.0.0",
-      "@supabase/supabase-js": "^2.45.4"
+      "@supabase/supabase-js": "^2.45.4",
+      "glob": "^10.0.0"
     },
     "devDependencies": {
       "typescript": "^5.0.4",
@@ -28,6 +29,6 @@
       "@types/pdf-parse": "^1.1.1",
       "@types/jest": "^29.5.0",
       "@types/cors": "^2.8.12",
-      "@types/supabase-js": "^2.1.0"
+      "@types/supabase__supabase-js": "^2.1.0"
     }
   }
