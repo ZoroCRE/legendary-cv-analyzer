@@ -1,4 +1,5 @@
-import { Request, FileFilterCallback } from 'express';
+import { Request } from 'express';
+  import { FileFilterCallback } from 'multer';
   import { File } from 'multer';
 
   export function validateFile(req: Request, file: File, cb: FileFilterCallback) {
