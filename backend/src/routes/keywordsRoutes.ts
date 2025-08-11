@@ -1,23 +1,58 @@
-import { Router } from 'express';
-import { supabase } from '../services/supabaseService';
+import { Router, Request, Response } from 'express';
 
-const router = Router();
+  const router = Router();
 
-router.get('/:userId', async (req, res) => {
-  const { userId } = req.params;
-  const { data, error } = await supabase
-    .from('keyword_lists')
-    .select('*')
-    .eq('user_id', userId);
-  res.json({ data, error });
-});
+  router.get('/:userId', async (req: Request, res: Response) => {
+    const { userId } = req.params;
 
-router.post('/', async (req, res) => {
-  const { userId, listName, keywords } = req.body;
-  const { data, error } = await supabase
-    .from('keyword_lists')
-    .insert([{ user_id: userId, list_name: listName, keywords }]);
-  res.json({ data, error });
-});
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ error: 'Supabase configuration missing' });
+    }
 
-export default router;
+    const response = await fetch(`${supabaseUrl}/rest/v1/keyword_lists?user_id=eq.${userId}`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch keywords' });
+    }
+
+    const data = await response.json();
+    res.json({ data, error: null });
+  });
+
+  router.post('/', async (req: Request, res: Response) => {
+    const { userId, listName, keywords } = req.body;
+
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ error: 'Supabase configuration missing' });
+    }
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/keyword_lists`, {
+      method: 'POST',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation', // لجلب البيانات بعد الإدراج
+      },
+      body: JSON.stringify([{ user_id: userId, list_name: listName, keywords }]),
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to insert keywords' });
+    }
+
+    const data = await response.json();
+    res.json({ data, error: null });
+  });
+
+  export default router;
