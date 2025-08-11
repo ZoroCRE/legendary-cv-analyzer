@@ -1,7 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export async function analyzeCV(cvFile: File, keywords: string[]): Promise<{ matches: { keyword: string, count: number }[], score: number }> {
-  // Validate file type
   const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/png', 'image/jpeg'];
   if (!allowedTypes.includes(cvFile.type)) {
     throw new Error('Only PDF, Docx, PNG, or JPEG files are allowed');
@@ -17,7 +16,8 @@ export async function analyzeCV(cvFile: File, keywords: string[]): Promise<{ mat
   });
 
   if (!response.ok) {
-    throw new Error('Failed to analyze CV');
+    const errorText = await response.text();
+    throw new Error(`Failed to analyze CV: ${errorText}`);
   }
 
   return response.json();
