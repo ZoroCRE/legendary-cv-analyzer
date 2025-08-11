@@ -1,17 +1,30 @@
-import { Router } from 'express';
-import { supabase } from '../services/supabaseService';
+import { Router, Request, Response } from 'express';
 
-const router = Router();
+  const router = Router();
 
-router.get('/:userId', async (req, res) => {
-  const { userId } = req.params;
+  router.get('/:userId', async (req: Request, res: Response) => {
+    const { userId } = req.params;
 
-  const { data, error } = await supabase
-    .from('cv_results')
-    .select('*')
-    .eq('user_id', userId);
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ error: 'Supabase configuration missing' });
+    }
 
-  res.json({ data, error });
-});
+    const response = await fetch(`${supabaseUrl}/rest/v1/cv_results?user_id=eq.${userId}`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-export default router;
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch results' });
+    }
+
+    const data = await response.json();
+    res.json({ data, error: null });
+  });
+
+  export default router;
