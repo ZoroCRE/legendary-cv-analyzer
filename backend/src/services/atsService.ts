@@ -1,24 +1,29 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+import nlp from 'compromise';
+  import pdfParse from 'pdf-parse';
 
-  export async function analyzeCV(cvFile: File, keywords: string[]): Promise<{ matches: { keyword: string, count: number }[], score: number }> {
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/png', 'image/jpeg'];
-    if (!allowedTypes.includes(cvFile.type)) {
-      throw new Error('Only PDF, Docx, PNG, or JPEG files are allowed');
+  export async function analyzeCV(fileBuffer: Buffer, keywords: string[]): Promise<{ matches: { keyword: string, count: number }[], score: number }> {
+    try {
+      let text = '';
+
+      // Extract text from PDF
+      if (fileBuffer) {
+        const data = await pdfParse(fileBuffer);
+        text = data.text.toLowerCase();
+      }
+
+      // Analyze text using compromise
+      const doc = nlp(text);
+      const matches = keywords.map(keyword => {
+        const count = doc.match(keyword.toLowerCase()).length;
+        return { keyword, count };
+      });
+
+      // Calculate score
+      const totalMatches = matches.reduce((sum, match) => sum + match.count, 0);
+      const score = Math.min((totalMatches / keywords.length) * 100, 100);
+
+      return { matches, score };
+    } catch (error: any) {
+      throw new Error(`Failed to analyze CV: ${error.message}`);
     }
-
-    const formData = new FormData();
-    formData.append('cv', cvFile);
-    formData.append('keywords', keywords.join(','));
-
-    const response = await fetch(`${API_BASE_URL}/analyze`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to analyze CV');
-    }
-
-    return response.json();
   }
